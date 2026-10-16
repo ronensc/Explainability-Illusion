@@ -1,0 +1,42 @@
+/* Figure details only; Bootstrap rows and columns control the layout. */
+/* Align title bottoms within each Bootstrap flex row when titles wrap. */
+.webpage-histogram figcaption {
+    margin-top: auto;
+    margin-bottom: 0.25rem;
+    overflow-wrap: anywhere;
+}
+.webpage-histogram img { display: block; }
+/* .webpage-axis-x, .webpage-axis-y { font-style: italic; } */
+.webpage-axis-y {
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    writing-mode: vertical-rl;
+    transform: translateY(-50%) rotate(180deg);
+}
+@media (max-width: 991.98px) {
+    .webpage-histogram:not(:nth-child(3n + 1)) .webpage-axis-y { display: none; }
+}
+@media (min-width: 992px) {
+    .webpage-histograms:not(.vit-histograms):not(.vlm-histograms) .webpage-histogram:not(:nth-child(6n + 1)) .webpage-axis-y { display: none; }
+    .vlm-histograms .webpage-histogram:not(:nth-child(7n + 1)) .webpage-axis-y,
+    .vit-histograms .webpage-histogram:not(:nth-child(7n + 1)) .webpage-axis-y { display: none; }
+    .row > .col-lg-vit, .row > .col-lg-hist { flex: 0 0 auto; width: 14.2857142857%; }
+}
+
+/* Paper-style example labels on desktop; Bootstrap controls the image columns. */
+@media (min-width: 992px) {
+    .example-gallery,
+    .example-gallery-caption {
+        max-width: 92%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .example-gallery .example-model-column { width: 2.5rem; }
+    .example-gallery .example-model-name {
+        display: block;
+        white-space: nowrap;
+        transform: rotate(-90deg);
+    }
+    .example-gallery .example-model-row figure { margin-bottom: 0; }
+}

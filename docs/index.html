@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <title>
+   The Explainability Illusion: Must ViTs Exhibit Patch-Decoding Interpretability?
+  </title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+  <!-- <link href="resources/archive.svg" rel="shortcut icon" type="image/x-icon"/> -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" rel="stylesheet"/>
+  <link href="style.css" rel="stylesheet" type="text/css"/>
+  <meta content="resources/teaser.png" property="og:image"/>
+  <meta content="The Explainability Illusion: Must ViTs Exhibit Patch-Decoding Interpretability?" property="og:title"/>
+  <meta content="We show the widespread presumption of patch-decoding explainability is not an inherent property of Vision Transformers, but an outcome that cannot be assumed to hold a-priori." property="og:description"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js">
+  </script>
+  <script crossorigin="anonymous" src="https://kit.fontawesome.com/ff1cbacea5.js">
+  </script>
+  <link href="webpage-figures.css?v=6" rel="stylesheet"/>
+ </head>
+ <body>
+  <script crossorigin="anonymous" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js">
+  </script>
+  <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet"/>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary" id="navbar_top" style="margin-bottom: 25px;">
+   <div class="container">
+    <a class="navbar-brand" href="">The Explainability Illusion</a>
+    <button class="navbar-toggler" data-bs-target="#main_nav" data-bs-toggle="collapse" type="button">
+     <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="main_nav">
+     <ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+       <a class="nav-link" href="#token-decoding">Token Decoding</a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#vit-histograms">ViTs</a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#clip">VLMs</a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#synthetic">Exp. & Theory</a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#paper">Paper</a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link" href="#bibtex">Citation</a>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </nav>
+  <!-- End Navigation Bar -->
+  <div class="container-xl">
+   <!-- Back to top button -->
+   <button class="btn btn-danger btn-floating btn-lg" id="btn-back-to-top" type="button">
+    <i class="fas fa-arrow-up"></i>
+   </button>
+   <!-- end top button -->
+   <!-- Header: Title, Authors, Affiliation & Quick Links -->
+   <center>
+    <h1 style="font-weight: 500; max-width: 950px; line-height: 1.25;">
+     The Explainability Illusion:
+     <br/>
+     <span style="font-size: 0.85em; font-weight: 400;">Must ViTs Exhibit Patch-Decoding Interpretability?</span>
+    </h1>
+    <!-- <h4 class="text-muted mt-2">Preprint</h4> -->
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-auto">
+       <span style="font-size: 24px;">Ronen Schaffer*</span>
+      </div>
+      <div class="col-auto">
+       <span style="font-size: 24px;"><a href="https://hilamanor.github.io/" rel="noopener noreferrer" target="_blank">Hila Manor*</a></span>
+      </div>
+      <div class="col-auto">
+       <span style="font-size: 24px;"><a href="https://tomer.net.technion.ac.il/" rel="noopener noreferrer" target="_blank">Tomer Michaeli</a></span>
+      </div>
+     </div>
+     <p class="text-muted mb-1" style="font-size: 10pt;">*Equal contribution</p>
+    </div>
+    <p class="text-center affiliation" style="font-size: 15pt;">Faculty of Electrical and Computer Engineering <br/> Technion – Israel Institute of Technology</p>
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-auto">
+       <a class="btn btn-outline-primary" href="https://arxiv.org/abs/2610.25289" rel="noopener noreferrer" role="button" style="font-size: 20px;" target="_blank"><i class="ai ai-arxiv" aria-hidden="true"></i> ArXiv</a>
+      </div>
+      <div class="col-auto">
+       <a class="btn btn-outline-primary" href="https://github.com/ronensc/Explainability-Illusion" rel="noopener noreferrer" role="button" style="font-size: 20px;" target="_blank"><i class="fab fa-github"></i> Code</a>
+      </div>
+     </div>
+    </div>
+   </center>
+   <!-- End Header -->
+   <div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+     <p class="rounded border-start border-primary border-3 p-3 mb-0" style="background-color: #f2f2f2;"><span class="fw-bold text-primary">TL;DR:</span> We show the widespread presumption of patch-decoding explainability is not an inherent property of Vision Transformers, but an outcome that cannot be assumed to hold a-priori.</p>
+    </div>
+   </div>
+   <div class="mt-2 pt-1" id="abstract">
+    <center>
+     <h2 style="margin-top: 10px;">
+      Abstract
+     </h2>
+    </center>
+    <div class="row justify-content-center">
+     <div class="col-lg-10">
+      <p style="text-align: justify; line-height: 1.6; font-size: 13pt;">Transformers are widely assumed to exhibit token-decoding explainability. In particular, in vision transformer (ViT) classifiers, decoding individual patch tokens has become a common diagnostic tool due to its tendency to yield human-interpretable outputs. In light of the increasing popularity of this approach, an important question is whether token-decoding explainability an inherent property of transformers that should be expected to hold across architectures, scales, and training objectives, or merely an artifact of some implicit bias? In this paper we systematically study token-decoding explainability across diverse ViT settings, spanning architectures, scales, and training objectives, using both controlled experiments and real-world models. We find that while some models indeed exhibit aligned and interpretable token decodings, others exhibit either inverted explainability maps or a complete lack of correlation with the image semantics. As we show, these tendencies toward different explainability behaviors are not intrinsic to the architecture and can vary arbitrarily with changes in the optimization landscape. We provide theoretical support for these observations by demonstrating a setting where a single fixed toy transformer architecture can provably implement the optimal classification rule in multiple ways, which differ in their patch-decoding explainability patterns. Our results show that token-decoding explainability is not an inherent property of trained transformers, but rather an outcome contingent on the problem setting and thus should not be a-priori assumed to hold.</p>
+     </div>
+    </div>
+   </div>
+   <hr class="my-3"/>
+   <section id="token-decoding" class="anchor">
+    <div class="row">
+     <div class="col-12">
+      <h2 class="text-center mb-4">
+       Token decoding is assumed to reveal what the model "sees" at each location.
+      </h2>
+      <p>One of the most common ways to interpret the behavior of vision transformers (ViTs) is through <b>Patch-token decoding</b>, where the model's classification head is applied to each patch token, and the resulting scores are visualized as a heatmap over the input image.</p>
+      <p>It is usually assumed that these heatmaps indicate what the model "sees" at each location in the image. Specifically, if a patch corresponding to an elephant has a high score for the "elephant" class, it is interpreted as the model recognizing the elephant in that patch.</p>
+     </div>
+    </div>
+    <div class="row justify-content-center">
+     <div class="col-11">
+      <div class="example-gallery">
+       <div aria-hidden="true" class="row g-0 d-none d-lg-flex align-items-end">
+        <div class="col-auto example-model-column">
+        </div>
+        <div class="col">
+         <div class="row g-2">
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           African Elephant
+          </div>
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           Egyptian cat
+          </div>
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           Golden Retriever
+          </div>
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           Zebra
+          </div>
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           Teddy
+          </div>
+          <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+           Airliner
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="row g-0 align-items-center mb-2 example-model-row">
+        <div class="col-12 d-lg-none">
+         <h5 class="text-center fw-bold">
+          ViT-B/16
+         </h5>
+        </div>
+        <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+         <span class="example-model-name fw-bold">ViT-B/16</span>
+        </div>
+        <div class="col-12 col-lg">
+         <div class="row g-2 justify-content-center">
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-0.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            African Elephant
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-1.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Egyptian cat
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-2.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Golden Retriever
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-3.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Zebra
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-4.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Teddy
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="ViT-B/16: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-0-5.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Airliner
+           </figcaption>
+          </figure>
+         </div>
+        </div>
+       </div>
+       <div class="row g-0 align-items-center mb-1 example-model-row">
+        <div class="col-12 d-lg-none">
+         <h5 class="text-center fw-bold">
+          DINOv2-B/14
+         </h5>
+        </div>
+        <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+         <span class="example-model-name fw-bold">DINOv2-B/14</span>
+        </div>
+        <div class="col-12 col-lg">
+         <div class="row g-2 justify-content-center">
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-0.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            African elephant
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-1.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Egyptian cat
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-2.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Golden Retriever
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-3.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Zebra
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-4.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Teddy
+           </figcaption>
+          </figure>
+          <figure class="col-4 col-md-2">
+           <img alt="DINOv2-B/14: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-example-1-5.webp" style="width: 100%; height: auto;" width="540"/>
+           <figcaption class="figure-caption text-center fw-bold d-lg-none">
+            Airliner
+           </figcaption>
+          </figure>
+         </div>
+        </div>
+       </div>
+      </div>
+      <p class="figure-caption mt-2 example-gallery-caption"><b>Aligned-explainability bias of real-world ViT classifiers.</b> Explainability maps of six image inputs, on ViT-B/16 and DINOv2. All classifiers exhibit an aligned-explainability bias. Warm and cool colors indicate higher or lower token-decoding scores.</p>
+     </div>
+    </div>
+   </section>
+   <section id="explainability-definition">
+    <div class="row justify-content-center">
+     <div class="col-12">
+      <h2 class="text-center mb-4">
+       Defining explainability
+      </h2>
+      <p>To go beyond a few convincing examples, we first must be able to measure the token-decoding explainability of an image. Using an object's mask, we average the decoded scores over object patches (S<sub>obj</sub>) and background patches (S<sub>bg</sub>).</p>
+      <p>An image exhibits <b>aligned-explainability</b> if S<sub>obj</sub> &gt; S<sub>bg</sub>, <b>inverted-explainability</b> if S<sub>obj</sub> &lt; S<sub>bg</sub>, and <b>unexplainability</b> if S<sub>obj</sub> ≈ S<sub>bg</sub>.</p>
+     </div>
+    </div>
+    <div class="row justify-content-center">
+     <div class="col-10">
+      <figure class="text-center" id="how-to-read-figure">
+       <img alt="An elephant image beside its patch-decoding score map, illustrating how object and background scores are measured." class="img-fluid" id="how-to-read-image" onerror="this.parentElement.hidden = true;" src="resources/how_to_read.jpg" style="max-width: 950px; width: 100%; height: auto;"/>
+       <figcaption class="figure-caption">
+        <b>Explainability regimes.</b> For an input image, token-decoding of patches produces explainability maps, where each patch-token receives some score S. The relation between the average score of object tokens, S<sub>obj</sub> (tokens inside the black contour), and the average score of background tokens, S<sub>bg</sub> (tokens outside the black contour), determine the explainability of a classified input image in a layer: aligned, unexplainable, or inverted. Here, the elephant is aligned and the cat is inverted.
+       </figcaption>
+      </figure>
+     </div>
+     <div class="col-12">
+      <p>Now, we can just plot the histogram of image scores on a 2D grid, to visualize the distribution of explainability behaviour of a model.</p>
+     </div>
+    </div>
+   </section>
+   <section id="vit-histograms"  class="anchor">
+    <div class="row justify-content-center">
+     <div class="col-12">
+      <h2 class="text-center mb-4">
+       Can we count on explainability across images and models?
+      </h2>
+     </div>
+     <div class="col-12">
+      <p>Indeed, ViT-based classifiers are usually explainaible:</p>
+     </div>
+     <div class="col-10">
+       <div aria-label="Object scores on the horizontal axis and background scores on the vertical axis" class="row g-2 webpage-histograms vit-histograms">
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-S/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-S/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-02.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/16 (AugReg2)
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/16 (AugReg2)" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-03.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-04.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-B/14+reg
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-B/14+reg" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-08.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-L/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-L/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-09.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-s/14+reg
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-s/14+reg" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-10.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/32 (in1k)
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/32 (in1k)" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-11.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/32
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/32" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-12.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-g/14+reg
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-g/14+reg" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-13.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-s/14
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-s/14" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-14.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-B/14
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-B/14" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-15.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DeiT-B/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DeiT-B/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-16.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-g/14
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-g/14" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-17.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-Ti/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-Ti/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-18.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        </div>
+       <div aria-hidden="true" class="row g-2">
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        </div>
+      <p class="figure-caption mt-2"><b>Aligned-explainability bias across real-world ViT classifiers.</b> 
+        2D histograms of S<sub>obj</sub> and S<sub>bg</sub> scores for 14 different classifiers. 
+        ViT classifiers exhibit a strong bias toward aligned-explainability. More examples can be found in the paper.</p>
+     </div>
+    </div>
+   <div class="row justify-content-center">
+    <div class="col-12">
+        <b>However, not all.</b> 
+    </div>
+    <div class="col-10">
+      <div aria-label="Object scores on the horizontal axis and background scores on the vertical axis" class="row g-2 webpage-histograms vit-histograms justify-content-center">
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit justify-content-center">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-L/14
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-L/14" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-19.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DINOv2-L/14+reg
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DINOv2-L/14+reg" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-20.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/32 (SAM)
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/32 (SAM)" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-21.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            ViT-B/16 (SAM)
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="ViT-B/16 (SAM)" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-22.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DeiT-Ti/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DeiT-Ti/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-23.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        <figure class="col-4 webpage-histogram d-flex flex-column mb-0 col-lg-vit">
+        <figcaption class="figure-caption text-center">
+        <div class="fw-bold">
+            DeiT-S/16
+        </div>
+        </figcaption>
+        <div class="position-relative">
+        <img alt="DeiT-S/16" class="img-fluid" decoding="async" height="553" loading="lazy" src="resources/figures/vit-hist-24.webp" style="width: 100%; height: auto;" width="594"/>
+        <span aria-hidden="true" class="webpage-axis-y">
+            S<sub>bg</sub>
+        </span>
+        </div>
+        </figure>
+        </div>
+        <div aria-hidden="true" class="row g-2 justify-content-center">
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        <div class="col-4 text-center webpage-axis-x d-none d-lg-block col-lg-vit">
+        S<sub>obj</sub>
+        </div>
+        </div>
+     </div>
+    <div class="col-10">
+    <p class="figure-caption mt-2"><b>Unexplainable and inverted-explainability of real-world ViT classifiers.</b> 
+    2D histograms of S<sub>obj</sub> and S<sub>bg</sub> scores for 6 different classifiers. 
+    Aligned-explainability is not universal among ViT classifiers.</p>
+    </div>
+
+    </div>
+  </section>
+  <hr class="my-3"/>
+  <section id="clip" class="anchor">
+   <div class="row justify-content-center">
+    <div class="col-12">
+     <h2 class="text-center mb-4">
+      What about contrastive vision-language models?
+     </h2>
+     <p>In contrastive vision-language models like CLIP, the model learns to associate images with their corresponding text descriptions. These models compare an image embedding with a text embedding. To decode an image patch, we apply the image encoder’s projection head and measure cosine similarity to the text embedding of <em>“a photo of a C”</em>, where C is the object’s class.</p>
+     <p>Contrastive VLMs exhibit a strong <b>inverted-explainability</b> bias, where background tokens score higher than object tokens.</p>
+    </div>
+    <div class="col-11">
+     <div class="example-gallery">
+      <div aria-hidden="true" class="row g-0 d-none d-lg-flex align-items-end">
+       <div class="col-auto example-model-column">
+       </div>
+       <div class="col">
+        <div class="row g-2">
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          African elephant
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Egyptian cat
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Golden Retriever
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Zebra
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Teddy
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Airliner
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="row g-0 align-items-center mb-2 example-model-row">
+       <div class="col-12 d-lg-none">
+        <h5 class="text-center fw-bold">
+         CLIP-L/14
+        </h5>
+       </div>
+       <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+        <span class="example-model-name fw-bold">CLIP-L/14</span>
+       </div>
+       <div class="col-12 col-lg">
+        <div class="row g-2 justify-content-center">
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-0.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           African elephant
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-1.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Egyptian cat
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-2.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Golden Retriever
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-3.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Zebra
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-4.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Teddy
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="CLIP-L/14: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-0-5.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Airliner
+          </figcaption>
+         </figure>
+        </div>
+       </div>
+      </div>
+      <div class="row g-0 align-items-center mb-1 example-model-row">
+       <div class="col-12 d-lg-none">
+        <h5 class="text-center fw-bold">
+         MetaCLIP-B/32
+        </h5>
+       </div>
+       <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+        <span class="example-model-name fw-bold">MetaCLIP-B/32</span>
+       </div>
+       <div class="col-12 col-lg">
+        <div class="row g-2 justify-content-center">
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-0.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           African elephant
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-1.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Egyptian cat
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-2.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Golden Retriever
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-3.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Zebra
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-4.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Teddy
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="MetaCLIP-B/32: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/clip-example-1-5.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Airliner
+          </figcaption>
+         </figure>
+        </div>
+       </div>
+      </div>
+     </div>
+     <p class="figure-caption mt-2 example-gallery-caption"><b>Inverted-explainability bias of real-world ViT-based contrastive VLMs.</b> Explainability maps of six image inputs, on CLIP-L/14 and MetaCLIP-B/32. Warm and cool colors indicate higher or lower patch-to-text similarity. VLMs exhibit a strong inverted-explainability bias.</p>
+    </div>
+    <div class="col-10">
+      <div aria-label="Object scores on the horizontal axis and background scores on the vertical axis" class="row g-2 webpage-histograms vlm-histograms">
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    SigLIP-B/32
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="SigLIP-B/32" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-00.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(80M-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (80M-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-01.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-L/14 <br>(80M-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-L/14 (80M-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-02.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(400M-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (400M-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-03.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/32 <br>(2B-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/32 (2B-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-04.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(80M-34B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (80M-34B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-12.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/32 <br>(2B-34B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/32 (2B-34B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-13.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-L/14 <br>(400M-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-L/14 (400M-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-15.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    MetaCLIP-H/14
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="MetaCLIP-H/14" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-18.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    CLIP-L/14
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="CLIP-L/14" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-19.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(2B-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (2B-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-22.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(2B-13B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (2B-13B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-23.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-L/14 <br>(2B-3B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-L/14 (2B-3B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-25.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    MetaCLIP-L/14
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="MetaCLIP-L/14" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-27.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-L/14 <br>(2B-34B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-L/14 (2B-34B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-30.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    MetaCLIP-B/32
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="MetaCLIP-B/32" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-32.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    CLIP-B/32
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="CLIP-B/32" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-34.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-B/16 <br>(2B-34B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-B/16 (2B-34B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-36.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    OpenCLIP-g/14 <br>(2B-13B)
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="OpenCLIP-g/14 (2B-13B)" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-38.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    CLIP-B/16
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="CLIP-B/16" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-39.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+ <figure class="col-4 col-lg-hist webpage-histogram d-flex flex-column mb-0">
+  <figcaption class="figure-caption text-center">
+   <div class="fw-bold">
+    MetaCLIP-B/16
+   </div>
+  </figcaption>
+  <div class="position-relative">
+   <img alt="MetaCLIP-B/16" class="img-fluid" decoding="async" height="549" loading="lazy" src="resources/figures/clip-hist-40.webp" style="width: 100%; height: auto;" width="640"/>
+   <span aria-hidden="true" class="webpage-axis-y">
+    S<sub>bg</sub>
+   </span>
+  </div>
+ </figure>
+</div>
+      <div aria-hidden="true" class="row g-2">
+ <div class="col-4 col-lg-hist text-center webpage-axis-x">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x d-none d-lg-block">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x d-none d-lg-block">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x d-none d-lg-block">
+  S<sub>obj</sub>
+ </div>
+ <div class="col-4 col-lg-hist text-center webpage-axis-x d-none d-lg-block">
+  S<sub>obj</sub>
+ </div>
+</div>
+     <p class="figure-caption mt-2" id="clip-histogram-caption"><b>Inverted-explainability bias across real-world contrastive models.</b> 
+     2D histograms of S<sub>obj</sub> and S<sub>bg</sub> scores for 21 different contrastive VLMs. All models exhibit an inverted-explainability bias. The scores tend to lie above the diagonal, where background patches score higher than object patches. OpenCLIP's partentheses indicate dataset size and number of samples seen. More examples can be found in the paper.</p>
+
+    </div>
+   </div>
+  </section>
+  <hr class="my-3"/>
+  <section id="synthetic" class="anchor">
+   <div class="row justify-content-center">
+    <div class="col-12">
+     <h2 class="text-center mb-4">
+      Should we expect any constant behvaiour at all?
+     </h2>
+     <p>To test the nature of these biases, we perform controlled experiments by training many ViT-based classifiers and contrastive models on synthetic data with varying parameters.</p>
+     <p>We find that for both classifiers and contrastive VLMs, the training can converge to <b>either</b> aligned or inverted explainability. This demonstrates that beyond the loss, the data distribution also affects the explainability of ViTs. </p>
+     <p>
+         However, the effect is not deterministic.
+         We show that for a fixed task and data distribution, different training seeds can converge to different explainability regimes. 
+         This shows that the training loss and the data distribution do not impose a strict regime, but rather promote different explainability <b>biases</b>.</p>
+    </div>
+   </div>
+  </section>
+  <section id="theory">
+   <div class="row justify-content-center">
+    <div class="col-12">
+     <h2 class="text-center mb-4">
+      Observations supported by theory
+     </h2>
+
+    <p>
+    To support our empirical observation that the loss and data distribution do not necessarily determine the explainability regime of a model, we analyze a classification problem simple enough to solve analytically.
+    </p>
+    <p>
+        We derive a closed form expression for the optimal classifier, identify a simple attention architecture that precisely implements it, and show that by adjusting its weights, its token-decoding map can be made aligned, unexplainable, or inverted. 
+        Importantly, all three versions produce identical logits, making them indistinguishable under any logit-based loss.
+    </p>
+    </div>
+   </div>
+   </section>
+  <!-- Paper -->
+  <hr id="paper"/>
+  <div class="container">
+   <center>
+    <h2 class="mb-4">
+     Paper
+    </h2>
+   </center>
+   <div class="row justify-content-center align-items-center g-4">
+    <div class="col-md-auto text-center">
+     <img alt="Paper Preview" class="layered-paper-big" src="./resources/paper.jpg" style="max-height: 200px; width: auto;"/>
+    </div>
+    <div class="col-md-auto">
+     <p style="font-size: 14pt; line-height: 1.5; margin-bottom: 12px;"><strong>The Explainability Illusion: <br/> Must ViTs Exhibit Patch-Decoding Interpretability?</strong> <br/> <span class="text-muted" style="font-size: 12pt;">Ronen Schaffer*, Hila Manor*, Tomer Michaeli</span></p>
+     <div>
+      <a class="btn btn-outline-primary" href="https://arxiv.org/abs/2610.25289" role="button" style="font-size: 16px;" target="_blank"><i class="ai ai-arxiv" aria-hidden="true"></i> ArXiv</a>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="container">
+   <p class="text-left">Our official code implementation can be found in the official <a href="https://github.com/ronensc/Explainability-Illusion" rel="noopener noreferrer" target="_blank"><i class="fab fa-github"></i> github repository</a>.</p>
+  </div>
+  <!-- BibTeX -->
+  <div class="mt-5" id="bibtex">
+   <h4 class="mb-2">
+    <b>BibTeX</b>
+   </h4>
+   <pre class="command-copy"><div class="container"><div class="row"><div class="col" id="citation">@article{schaffer2026explainability,
+    title={The Explainability Illusion: Must ViTs Exhibit Patch-Decoding Interpretability?},
+    author={Schaffer, Ronen and Manor, Hila and Michaeli, Tomer},
+    journal={arXiv preprint arXiv:2610.25289},
+    year={2026}
+}</div><div class="col text-end"><button class="btn btn-light" id="bibtex-btn" onclick="copyBib()" type="button"><i class="fa-regular fa-copy"></i></button></div></div></div></pre>
+  </div>
+  <!-- End BibTeX -->
+  <hr/>
+  <br/>
+  <!-- acknowledgement -->
+  <div class="container">
+   <center>
+    <h4 class="text-muted">
+     Acknowledgements
+    </h4>
+    <p style="font-size: 11pt; color: #777; max-width: 750px;">This webpage was originally made by <a href="https://matankleiner.github.io//" rel="noopener noreferrer" target="_blank">Matan Kleiner</a> with the help of <a href="https://hilamanor.github.io/" rel="noopener noreferrer" target="_blank">Hila Manor</a>. <br/> The code for the original template can be found <a href="https://github.com/matankleiner/academic-webpage-template/tree/main" rel="noopener noreferrer" target="_blank">here</a>. <br/> Icons are taken from <a href="https://fontawesome.com/" rel="noopener noreferrer" target="_blank">font awesome</a> or from <a href="https://jpswalsh.github.io/academicons/" rel="noopener noreferrer" target="_blank">Academicons</a>.</p>
+   </center>
+  </div>
+  </div>
+  <script src="functionality.js">
+  </script>
+ </body>
+</html>
