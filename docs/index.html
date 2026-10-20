@@ -110,7 +110,7 @@
     </center>
     <div class="row justify-content-center">
      <div class="col-lg-10">
-      <p style="text-align: justify; line-height: 1.6; font-size: 13pt;">Transformers are widely assumed to exhibit token-decoding explainability. In particular, in vision transformer (ViT) classifiers, decoding individual patch tokens has become a common diagnostic tool due to its tendency to yield human-interpretable outputs. In light of the increasing popularity of this approach, an important question is whether token-decoding explainability an inherent property of transformers that should be expected to hold across architectures, scales, and training objectives, or merely an artifact of some implicit bias? In this paper we systematically study token-decoding explainability across diverse ViT settings, spanning architectures, scales, and training objectives, using both controlled experiments and real-world models. We find that while some models indeed exhibit aligned and interpretable token decodings, others exhibit either inverted explainability maps or a complete lack of correlation with the image semantics. As we show, these tendencies toward different explainability behaviors are not intrinsic to the architecture and can vary arbitrarily with changes in the optimization landscape. We provide theoretical support for these observations by demonstrating a setting where a single fixed toy transformer architecture can provably implement the optimal classification rule in multiple ways, which differ in their patch-decoding explainability patterns. Our results show that token-decoding explainability is not an inherent property of trained transformers, but rather an outcome contingent on the problem setting and thus should not be a-priori assumed to hold.</p>
+      <p style="text-align: justify; line-height: 1.6; font-size: 13pt;">Transformers are widely assumed to exhibit token-decoding explainability. In particular, in vision transformer (ViT) classifiers, decoding individual patch tokens has become a common diagnostic tool due to its tendency to yield human-interpretable outputs. In light of the increasing popularity of this approach, an important question is whether token-decoding explainability is an inherent property of transformers that should be expected to hold across architectures, scales, and training objectives, or merely an artifact of some implicit bias. In this paper we systematically study token-decoding explainability across diverse ViT settings, spanning architectures, scales, and training objectives, using both controlled experiments and real-world models. We find that while some models indeed exhibit aligned and interpretable token decodings, others exhibit either inverted explainability maps or a complete lack of correlation with the image semantics. As we show, these tendencies toward different explainability behaviors are not intrinsic to the architecture and can vary arbitrarily with changes in the optimization landscape. We provide theoretical support for these observations by demonstrating a setting where a single fixed toy transformer architecture can provably implement the optimal classification rule in multiple ways, which differ in their patch-decoding explainability patterns. Our results show that token-decoding explainability is not an inherent property of trained transformers, but rather an outcome contingent on the problem setting and thus should not be a-priori assumed to hold.</p>
      </div>
     </div>
    </div>
@@ -119,7 +119,7 @@
     <div class="row">
      <div class="col-12">
       <h2 class="text-center mb-4">
-       Token decoding is assumed to reveal what the model "sees" at each location.
+       Token decoding is assumed to reveal what the model "sees" at each location
       </h2>
       <p>One of the most common ways to interpret the behavior of vision transformers (ViTs) is through <b>Patch-token decoding</b>, where the model's classification head is applied to each patch token, and the resulting scores are visualized as a heatmap over the input image.</p>
       <p>It is usually assumed that these heatmaps indicate what the model "sees" at each location in the image. Specifically, if a patch corresponding to an elephant has a high score for the "elephant" class, it is interpreted as the model recognizing the elephant in that patch.</p>
@@ -279,7 +279,7 @@
       </figure>
      </div>
      <div class="col-12">
-      <p>Now, we can just plot the histogram of image scores on a 2D grid, to visualize the distribution of explainability behaviour of a model.</p>
+      <p>Now, we can just plot the histogram of image scores on a 2D grid, to visualize the distribution of explainability behavior of a model.</p>
      </div>
     </div>
    </section>
@@ -291,7 +291,7 @@
       </h2>
      </div>
      <div class="col-12">
-      <p>Indeed, ViT-based classifiers are usually explainaible:</p>
+      <p>Indeed, ViT-based classifiers are usually explainable:</p>
      </div>
      <div class="col-10">
        <div aria-label="Object scores on the horizontal axis and background scores on the vertical axis" class="row g-2 webpage-histograms vit-histograms">
@@ -508,7 +508,142 @@
     </div>
    <div class="row justify-content-center">
     <div class="col-12">
-        <b>However, not all.</b> 
+     <h2 class="text-center mb-4 mt-5">
+      However, not all
+     </h2>
+     <p>Some ViT classifiers break this pattern, even though they classify just as accurately. DeiT-S/16 exhibits <b>inverted-explainability</b>, where background tokens score higher than object tokens. In DINOv2-L/14 the maps are <b>unexplainable</b>, as they do not separate the object from the background at all.</p>
+     <p>DeiT-S/16 correctly classifies the zebra, yet its map scores the zebra's own patches lower than the grass around it. These heatmaps therefore cannot be read as showing what the model "sees".</p>
+    </div>
+    <div class="col-11">
+     <div class="example-gallery">
+      <div aria-hidden="true" class="row g-0 d-none d-lg-flex align-items-end">
+       <div class="col-auto example-model-column">
+       </div>
+       <div class="col">
+        <div class="row g-2">
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          African elephant
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Egyptian cat
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Golden Retriever
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Zebra
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Teddy
+         </div>
+         <div class="col-2 text-center figure-caption fw-bold example-class-heading">
+          Airliner
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="row g-0 align-items-center mb-2 example-model-row">
+       <div class="col-12 d-lg-none">
+        <h5 class="text-center fw-bold">
+         DeiT-S/16
+        </h5>
+       </div>
+       <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+        <span class="example-model-name fw-bold">DeiT-S/16</span>
+       </div>
+       <div class="col-12 col-lg">
+        <div class="row g-2 justify-content-center">
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-0.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           African elephant
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-1.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Egyptian cat
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-2.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Golden Retriever
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-3.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Zebra
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-4.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Teddy
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DeiT-S/16: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-0-5.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Airliner
+          </figcaption>
+         </figure>
+        </div>
+       </div>
+      </div>
+      <div class="row g-0 align-items-center mb-1 example-model-row">
+       <div class="col-12 d-lg-none">
+        <h5 class="text-center fw-bold">
+         DINOv2-L/14
+        </h5>
+       </div>
+       <div aria-hidden="true" class="col-auto example-model-column d-none d-lg-flex align-items-center justify-content-center">
+        <span class="example-model-name fw-bold">DINOv2-L/14</span>
+       </div>
+       <div class="col-12 col-lg">
+        <div class="row g-2 justify-content-center">
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: African elephant" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-0.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           African elephant
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: Egyptian cat" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-1.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Egyptian cat
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: Golden Retriever" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-2.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Golden Retriever
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: Zebra" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-3.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Zebra
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: Teddy" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-4.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Teddy
+          </figcaption>
+         </figure>
+         <figure class="col-4 col-md-2">
+          <img alt="DINOv2-L/14: Airliner" class="img-fluid" decoding="async" height="540" loading="lazy" src="resources/figures/vit-nonaligned-example-1-5.webp" style="width: 100%; height: auto;" width="540"/>
+          <figcaption class="figure-caption text-center fw-bold d-lg-none">
+           Airliner
+          </figcaption>
+         </figure>
+        </div>
+       </div>
+      </div>
+     </div>
+     <p class="figure-caption mt-2 mb-4 example-gallery-caption"><b>Non-aligned explainability of real-world ViT classifiers.</b> Explainability maps of the same six images on DeiT-S/16 (inverted) and DINOv2-L/14 (unexplainable). Although both models classify accurately, their maps do not highlight the object.</p>
     </div>
     <div class="col-10">
       <div aria-label="Object scores on the horizontal axis and background scores on the vertical axis" class="row g-2 webpage-histograms vit-histograms justify-content-center">
@@ -1071,7 +1206,7 @@
    <div class="row justify-content-center">
     <div class="col-12">
      <h2 class="text-center mb-4">
-      Should we expect any constant behvaiour at all?
+      Should we expect any constant behavior at all?
      </h2>
      <p>To test the nature of these biases, we perform controlled experiments by training many ViT-based classifiers and contrastive models on synthetic data with varying parameters.</p>
      <p>We find that for both classifiers and contrastive VLMs, the training can converge to <b>either</b> aligned or inverted explainability. This demonstrates that beyond the loss, the data distribution also affects the explainability of ViTs. </p>
